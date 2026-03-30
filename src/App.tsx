@@ -1,16 +1,24 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import { motion, AnimatePresence } from "motion/react";
 import { Menu, X, Stethoscope, Sun, Building2, Cpu, Scale, Truck, Zap, Briefcase, ShoppingCart, ArrowUpRight } from "lucide-react";
-import { useState, FormEvent, MouseEvent } from "react";
+import { useState, useEffect, FormEvent, MouseEvent } from "react";
 
 export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isIframeActive, setIsIframeActive] = useState(false);
   const [formStatus, setFormStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMenuOpen]);
 
   const scrollToSection = (e: MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
@@ -300,7 +308,7 @@ export default function App() {
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden bg-[#0A0A0A] font-sans selection:bg-[#E0E0E0] selection:text-[#0A0A0A]">
       {/* Background 3D Abstract Elements (Simulated with high-quality image and gradients) */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 overflow-hidden">
         <div className="absolute inset-0 bg-radial-[at_50%_50%] from-transparent to-[#0A0A0A] opacity-60" />
         <motion.img
           initial={{ opacity: 0 }}
@@ -503,7 +511,7 @@ export default function App() {
         </div>
 
         {/* Industry Ribbon */}
-        <div className="mt-32 overflow-hidden border-y border-white/5 py-12">
+        <div className="mt-32 overflow-hidden border-y border-white/5 py-12 touch-pan-y">
           <motion.div
             animate={{ x: [0, -1920] }}
             transition={{
@@ -751,7 +759,7 @@ export default function App() {
           </div>
 
           {/* Marquee Testimonials */}
-          <div className="mt-16 overflow-hidden">
+          <div className="mt-16 overflow-hidden touch-pan-y">
             <motion.div
               animate={{ x: [0, -1000] }}
               transition={{
@@ -936,8 +944,20 @@ export default function App() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 1 }}
-              className="relative overflow-hidden rounded-3xl border border-white/5 bg-white/[0.02] backdrop-blur-3xl"
+              className="group relative overflow-hidden rounded-3xl border border-white/5 bg-white/[0.02] backdrop-blur-3xl"
             >
+              {/* Interaction Overlay */}
+              {!isIframeActive && (
+                <div 
+                  className="absolute inset-0 z-20 flex cursor-pointer items-center justify-center bg-charcoal/40 backdrop-blur-[2px] transition-opacity hover:bg-charcoal/30"
+                  onClick={() => setIsIframeActive(true)}
+                >
+                  <div className="rounded-full bg-offwhite px-6 py-3 text-[10px] font-bold tracking-widest text-charcoal shadow-2xl">
+                    TAP TO INTERACT WITH CALENDAR
+                  </div>
+                </div>
+              )}
+
               {/* Real Cal.com Embed */}
               <div className="h-[600px] w-full">
                 <iframe
@@ -946,11 +966,6 @@ export default function App() {
                   className="h-full w-full border-none"
                   allow="camera; microphone; autoplay; payment; clipboard-write"
                 />
-              </div>
-              
-              {/* Overlay to guide user if they haven't replaced the link */}
-              <div className="absolute bottom-4 left-4 right-4 rounded-lg bg-charcoal/80 p-4 text-[8px] font-bold tracking-widest text-offwhite/40 uppercase backdrop-blur-md">
-                Note: Replace the iframe src with your actual Cal.com link in App.tsx
               </div>
             </motion.div>
           </div>
@@ -1046,3 +1061,4 @@ export default function App() {
     </div>
   );
 }
+
